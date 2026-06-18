@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos globales */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Clases personalizadas de Leaflet para marcadores tipo píldora */
+.custom-marker-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px 3px 4px;
+  border-radius: 16px;
+  font-weight: 600;
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  white-space: nowrap;
+  height: 30px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.custom-marker-pill:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.custom-marker-pill .marker-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  font-size: 11px;
+  color: white;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.custom-marker-pill .marker-name {
+  font-size: 11px;
+  color: white;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.marker-pending {
+  background-color: #3b82f6;
+}
+
+.marker-completed {
+  background-color: #22c55e;
+}
+
+.marker-canceled {
+  background-color: #ef4444;
+}
+
+/* Sobrescribir estilos de popup de Leaflet para darles look Tailwind */
+.leaflet-popup-content-wrapper {
+  border-radius: 0.75rem !important;
+  padding: 0.25rem !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+}
+
+.leaflet-popup-tip {
+  box-shadow: 0 5px 5px -3px rgb(0 0 0 / 0.1) !important;
+}
+
+/* Ocultar barra de scroll pero mantener funcionalidad */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Estilos de impresión */
+@media print {
+  html, body, #root {
+    overflow: visible !important;
+    height: auto !important;
+    background: white !important;
+  }
+  .print-hidden {
+    display: none !important;
+  }
+  .leaflet-container {
+    height: 100vh !important;
+    width: 100vw !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 9999 !important;
+  }
+  .leaflet-popup {
+    display: none !important;
+  }
+  .print-btn {
+    display: none !important;
+  }
+  .zoom-controls {
+    display: none !important;
+  }
+  .map-legend {
+    display: none !important;
+  }
+  .leaflet-control-attribution {
+    display: none !important;
+  }
+}
