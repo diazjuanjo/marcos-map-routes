@@ -132,7 +132,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
         {/* Leaflet map — screen and print */}
         <div className="mb-6 print:mb-0 print-map-page">
           <h3 className="text-xs font-bold text-gray-500 uppercase mb-2 print-hidden">Mapa de ruta</h3>
-          <div className="relative h-[250px] print:h-screen border border-gray-300 print:border-0 overflow-hidden">
+          <div className="relative h-[250px] border border-gray-300 overflow-hidden full-print-map">
             {routePoints.length > 0 ? (
               <>
               <MapView
