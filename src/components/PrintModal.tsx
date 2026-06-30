@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { User, MasterClient, RouteAssignment, ViewerOrderEntry, DayOfWeek, AssignedClient } from '../types';
 import { MapView } from './MapView';
 import { mergeAssignments, applyViewerOrder, viewerDayToSellerDay } from '../utils/storage';
@@ -78,7 +78,18 @@ export const PrintModal: React.FC<PrintModalProps> = ({
     }));
   }, [assignments, masterClients, selectedUserId, selectedDay, isViewer, selectedViewerUserIds, viewerOrders]);
 
-  const handlePrint = useCallback(() => window.print(), []);
+  const mapRef = useRef<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = useCallback(() => {
+    if (containerRef.current && mapRef.current) {
+      containerRef.current.style.height = '210mm';
+      mapRef.current.invalidateSize();
+      setTimeout(() => window.print(), 100);
+    } else {
+      window.print();
+    }
+  }, []);
 
   return (
     <>
@@ -125,7 +136,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
       {/* Map — screen: padded, print: full-bleed */}
       <div className="mb-6 px-6 max-w-4xl mx-auto print:px-0 print:max-w-none print-map-fill">
         <h3 className="text-xs font-bold text-gray-500 uppercase mb-2 print:hidden">Mapa de ruta</h3>
-        <div className="relative h-[250px] border border-gray-300 overflow-hidden map-print-container">
+        <div className="relative h-[250px] border border-gray-300 overflow-hidden map-print-container" ref={containerRef}>
           {routePoints.length > 0 ? (
             <>
             <MapView
@@ -135,6 +146,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
               tempNewPoint={null}
               onStatusChange={() => {}}
               hideOverlays
+              onMapReady={(m: any) => { mapRef.current = m; }}
             />
             <div className="hidden print:block print:absolute print:top-2 print:left-2 print:z-[10000] print:bg-white/80 print:px-2 print:py-1 print:rounded print:text-[10px] print:font-bold print:text-gray-700 print:shadow-sm">
               {selectedUser?.name} — {selectedDay}

@@ -14,6 +14,7 @@ interface MapViewProps {
   onStatusChange: (pointId: string, status: RoutePoint['status']) => void;
   preferCanvas?: boolean;
   hideOverlays?: boolean;
+  onMapReady?: (map: any) => void;
 }
 
 const createNumberedIcon = (index: number, name: string, status: RoutePoint['status']) => {
@@ -77,6 +78,12 @@ const AutoFitBounds: React.FC<{ points: RoutePoint[]; tempPoint: Partial<RoutePo
   return null;
 };
 
+const MapReadyHandler: React.FC<{ onReady: (map: any) => void }> = ({ onReady }) => {
+  const map = useMap();
+  useEffect(() => { onReady(map); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  return null;
+};
+
 export const MapView: React.FC<MapViewProps> = ({
   points,
   onMapClick,
@@ -84,7 +91,8 @@ export const MapView: React.FC<MapViewProps> = ({
   tempNewPoint,
   onStatusChange,
   preferCanvas,
-  hideOverlays
+  hideOverlays,
+  onMapReady
 }) => {
   const defaultCenter: [number, number] = [-26.82414, -65.2226];
   const defaultZoom = 13;
@@ -108,6 +116,8 @@ export const MapView: React.FC<MapViewProps> = ({
         <MapEventsHandler onMapClick={onMapClick} />
 
         <AutoFitBounds points={points} tempPoint={tempNewPoint} />
+
+        {onMapReady && <MapReadyHandler onReady={onMapReady} />}
 
         {routePositions.length > 1 && (
           <Polyline
