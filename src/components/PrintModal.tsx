@@ -90,7 +90,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
         (b: any, p: any) => b.extend([p.lat, p.lng]),
         L.latLngBounds([routePoints[0].lat, routePoints[0].lng], [routePoints[0].lat, routePoints[0].lng])
       );
-      mapRef.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 17 });
+      mapRef.current.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
       setTimeout(() => window.print(), 200);
     } else {
       window.print();
