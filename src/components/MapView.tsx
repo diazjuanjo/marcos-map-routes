@@ -13,6 +13,7 @@ interface MapViewProps {
   tempNewPoint: Partial<RoutePoint> | null;
   onStatusChange: (pointId: string, status: RoutePoint['status']) => void;
   preferCanvas?: boolean;
+  hideOverlays?: boolean;
 }
 
 const createNumberedIcon = (index: number, name: string, status: RoutePoint['status']) => {
@@ -82,7 +83,8 @@ export const MapView: React.FC<MapViewProps> = ({
   onMarkerClick,
   tempNewPoint,
   onStatusChange,
-  preferCanvas
+  preferCanvas,
+  hideOverlays
 }) => {
   const defaultCenter: [number, number] = [-26.82414, -65.2226];
   const defaultZoom = 13;
@@ -211,17 +213,18 @@ export const MapView: React.FC<MapViewProps> = ({
         )}
       </MapContainer>
 
-      <div className="print-btn absolute top-4 left-4 z-[1000] flex gap-1">
-        <button
-          onClick={() => window.print()}
-          className="w-9 h-9 flex items-center justify-center bg-white hover:bg-gray-100 text-gray-600 hover:text-gray-800 rounded-lg shadow-md border border-gray-200 transition-colors"
-          title="Imprimir mapa"
-        >
-          <Printer size={16} />
-        </button>
-      </div>
+      {!hideOverlays && (<>
+        <div className="print-btn absolute top-4 left-4 z-[1000] flex gap-1">
+          <button
+            onClick={() => window.print()}
+            className="w-9 h-9 flex items-center justify-center bg-white hover:bg-gray-100 text-gray-600 hover:text-gray-800 rounded-lg shadow-md border border-gray-200 transition-colors"
+            title="Imprimir mapa"
+          >
+            <Printer size={16} />
+          </button>
+        </div>
 
-      <div className="zoom-controls absolute top-4 right-4 z-[1000] flex flex-col gap-1 shadow-md bg-white rounded-lg overflow-hidden border border-gray-200">
+        <div className="zoom-controls absolute top-4 right-4 z-[1000] flex flex-col gap-1 shadow-md bg-white rounded-lg overflow-hidden border border-gray-200">
         <button
           onClick={() => {
             const mapContainer = document.querySelector('.leaflet-container');
@@ -250,7 +253,7 @@ export const MapView: React.FC<MapViewProps> = ({
         </button>
       </div>
 
-      <div className="map-legend absolute bottom-4 right-4 z-[1000] bg-white bg-opacity-95 p-3 rounded-xl border border-gray-100 shadow-lg text-[11px] space-y-1.5 max-w-[150px]">
+        <div className="map-legend absolute bottom-4 right-4 z-[1000] bg-white bg-opacity-95 p-3 rounded-xl border border-gray-100 shadow-lg text-[11px] space-y-1.5 max-w-[150px]">
         <h4 className="font-bold text-gray-700 border-b border-gray-100 pb-1 mb-1">Estados</h4>
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
@@ -268,6 +271,7 @@ export const MapView: React.FC<MapViewProps> = ({
           Haz clic en el mapa para añadir paradas
         </div>
       </div>
+      </>)}
     </div>
   );
 };
