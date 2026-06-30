@@ -1,9 +1,8 @@
-import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { User, MasterClient, RouteAssignment, DayOfWeek } from '../types';
 import { MapView } from './MapView';
 import { mergeAssignments } from '../utils/storage';
 import { Printer, X, MapPin } from 'lucide-react';
-import html2canvas from 'html2canvas';
 
 interface PrintModalProps {
   users: User[];
@@ -22,8 +21,6 @@ export const PrintModal: React.FC<PrintModalProps> = ({
     normalUsers.length > 0 ? normalUsers[0].id : ''
   );
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>('Lunes');
-  const [mapImage, setMapImage] = useState<string | null>(null);
-  const mapContainerRef = useRef<HTMLDivElement>(null);
 
   const selectedUser = users.find(u => u.id === selectedUserId);
 
@@ -46,24 +43,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
     }));
   }, [assignments, masterClients, selectedUserId, selectedDay]);
 
-  // Capture map as image whenever route points change
-  useEffect(() => {
-    setMapImage(null);
-    if (routePoints.length === 0 || !mapContainerRef.current) return;
-    const timer = setTimeout(() => {
-      if (!mapContainerRef.current) return;
-      html2canvas(mapContainerRef.current, { useCORS: true }).then(canvas => {
-        setMapImage(canvas.toDataURL('image/png'));
-      }).catch(() => {
-        // fallback: keep live map
-      });
-    }, 800);
-    return () => clearTimeout(timer);
-  }, [routePoints]);
-
-  const handlePrint = useCallback(() => {
-    window.print();
-  }, []);
+  const handlePrint = useCallback(() => window.print(), []);
 
   return (
     <div className="fixed inset-0 z-[5000] flex flex-col bg-gray-900/95 print:bg-white">
@@ -115,13 +95,12 @@ export const PrintModal: React.FC<PrintModalProps> = ({
             </p>
           </div>
 
-          {/* Map — live on screen, image when printing */}
+          {/* Map — page 1 */}
           <div className="mb-6 print:mb-0 print:break-after-page">
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 print:text-gray-500">
               <MapPin size={12} className="inline mr-1" />Mapa de ruta
             </h3>
-            {/* Live map (screen only) */}
-            <div ref={mapContainerRef} className="print:hidden h-[350px] md:h-[450px] rounded-xl overflow-hidden border border-gray-700">
+            <div className="h-[350px] md:h-[450px] rounded-xl overflow-hidden border border-gray-700 print:h-[90vh] print:border-gray-300 print:rounded-none print:overflow-visible">
               <MapView
                 points={routePoints}
                 onMapClick={() => {}}
@@ -130,15 +109,9 @@ export const PrintModal: React.FC<PrintModalProps> = ({
                 onStatusChange={() => {}}
               />
             </div>
-            {/* Captured image (print only) */}
-            {mapImage && (
-              <img src={mapImage} alt="Mapa de ruta"
-                className="hidden print:block w-full print:h-[90vh] object-contain"
-              />
-            )}
           </div>
 
-          {/* Client table */}
+          {/* Client table — page 2 */}
           <div>
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 print:text-gray-500">
               Listado de clientes
