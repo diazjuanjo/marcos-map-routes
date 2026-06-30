@@ -93,15 +93,15 @@ html, body, #root {
 
 @media print {
   html, body, #root {
+    height: 100% !important;
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
-    background: white !important;
     overflow: visible !important;
+    background: white !important;
   }
   .print-map-fill {
-    width: 100%;
-    height: 100vh;
+    height: 100%;
     overflow: hidden;
   }
   .print-map-fill .map-print-container {

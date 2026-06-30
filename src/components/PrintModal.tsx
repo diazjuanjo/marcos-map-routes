@@ -122,66 +122,61 @@ export const PrintModal: React.FC<PrintModalProps> = ({
         )}
       </div>
 
-      {/* Content */}
-      <div className="p-6 max-w-4xl mx-auto print:p-0 print:max-w-none">
-        <div className="mb-6 print:hidden">
+      {/* Map — screen: padded, print: full-bleed */}
+      <div className="mb-6 px-6 max-w-4xl mx-auto print:px-0 print:max-w-none print-map-fill">
+        <h3 className="text-xs font-bold text-gray-500 uppercase mb-2 print:hidden">Mapa de ruta</h3>
+        <div className="relative h-[250px] border border-gray-300 overflow-hidden map-print-container">
+          {routePoints.length > 0 ? (
+            <>
+            <MapView
+              points={routePoints}
+              onMapClick={() => {}}
+              onMarkerClick={() => {}}
+              tempNewPoint={null}
+              onStatusChange={() => {}}
+              hideOverlays
+            />
+            <div className="hidden print:block print:absolute print:top-2 print:left-2 print:z-[10000] print:bg-white/80 print:px-2 print:py-1 print:rounded print:text-[10px] print:font-bold print:text-gray-700 print:shadow-sm">
+              {selectedUser?.name} — {selectedDay}
+            </div>
+            </>
+          ) : (
+            <p className="text-gray-500 text-sm italic p-4">Sin puntos en la ruta</p>
+          )}
+        </div>
+      </div>
+
+      {/* Table — screen: same visual, print: page 2 */}
+      <div className="p-6 max-w-4xl mx-auto print:px-6 print:max-w-4xl print-table-page">
+        <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">RutaApp</h1>
           <p className="text-gray-600 mt-1">{selectedUser?.name} — {selectedDay}</p>
         </div>
-
-        {/* Leaflet map — screen and print */}
-        <div className="mb-6 print:mb-0 print-map-fill">
-          <h3 className="text-xs font-bold text-gray-500 uppercase mb-2 print-hidden">Mapa de ruta</h3>
-          <div className="relative h-[250px] border border-gray-300 overflow-hidden map-print-container">
-            {routePoints.length > 0 ? (
-              <>
-              <MapView
-                points={routePoints}
-                onMapClick={() => {}}
-                onMarkerClick={() => {}}
-                tempNewPoint={null}
-                onStatusChange={() => {}}
-                hideOverlays
-              />
-              <div className="hidden print:block print:absolute print:top-2 print:left-2 print:z-[10000] print:bg-white/80 print:px-2 print:py-1 print:rounded print:text-[10px] print:font-bold print:text-gray-700 print:shadow-sm">
-                {selectedUser?.name} — {selectedDay}
-              </div>
-              </>
+        <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">Listado de clientes</h3>
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="border-b-2 border-gray-400">
+              <th className="text-left py-2 pr-4 text-xs font-bold text-gray-600 uppercase">#</th>
+              <th className="text-left py-2 pr-4 text-xs font-bold text-gray-600 uppercase">Nombre</th>
+              <th className="text-left py-2 pr-4 text-xs font-bold text-gray-600 uppercase">Dirección</th>
+              <th className="text-left py-2 text-xs font-bold text-gray-600 uppercase">Teléfono</th>
+            </tr>
+          </thead>
+          <tbody>
+            {routePoints.length === 0 ? (
+              <tr><td colSpan={4} className="py-8 text-center text-gray-400">Sin clientes asignados</td></tr>
             ) : (
-              <p className="text-gray-500 text-sm italic p-4">Sin puntos en la ruta</p>
+              routePoints.map((p, i) => (
+                <tr key={p.id} className="border-b border-gray-200">
+                  <td className="py-2 pr-4 text-gray-500">{i + 1}</td>
+                  <td className="py-2 pr-4 font-medium text-gray-900">{p.name}</td>
+                  <td className="py-2 pr-4 text-gray-600">{p.address || '—'}</td>
+                  <td className="py-2 text-gray-600">{p.phone || '—'}</td>
+                </tr>
+              ))
             )}
-          </div>
-        </div>
-
-        {/* Client table */}
-        <div className="print:pt-8 print-table-page">
-          <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">Listado de clientes</h3>
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b-2 border-gray-400">
-                <th className="text-left py-2 pr-4 text-xs font-bold text-gray-600 uppercase">#</th>
-                <th className="text-left py-2 pr-4 text-xs font-bold text-gray-600 uppercase">Nombre</th>
-                <th className="text-left py-2 pr-4 text-xs font-bold text-gray-600 uppercase">Dirección</th>
-                <th className="text-left py-2 text-xs font-bold text-gray-600 uppercase">Teléfono</th>
-              </tr>
-            </thead>
-            <tbody>
-              {routePoints.length === 0 ? (
-                <tr><td colSpan={4} className="py-8 text-center text-gray-400">Sin clientes asignados</td></tr>
-              ) : (
-                routePoints.map((p, i) => (
-                  <tr key={p.id} className="border-b border-gray-200">
-                    <td className="py-2 pr-4 text-gray-500">{i + 1}</td>
-                    <td className="py-2 pr-4 font-medium text-gray-900">{p.name}</td>
-                    <td className="py-2 pr-4 text-gray-600">{p.address || '—'}</td>
-                    <td className="py-2 text-gray-600">{p.phone || '—'}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
+          </tbody>
+        </table>
         <p className="mt-8 pt-4 border-t border-gray-300 text-center text-xs text-gray-400">
           Generado el {new Date().toLocaleDateString('es-AR')}
         </p>
