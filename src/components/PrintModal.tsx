@@ -99,11 +99,11 @@ export const PrintModal: React.FC<PrintModalProps> = ({
           </div>
 
           {/* Map */}
-          <div className="mb-6 print:mb-8 print:break-inside-avoid">
+          <div className="mb-6 print:mb-0 print:break-after-page">
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 print:text-gray-500">
               <MapPin size={12} className="inline mr-1" />Mapa de ruta
             </h3>
-            <div className="h-[350px] md:h-[450px] rounded-xl overflow-hidden border border-gray-700 print:border-gray-300 print:rounded-none print:h-[400px]">
+            <div className="h-[350px] md:h-[450px] rounded-xl overflow-hidden border border-gray-700 print:border-gray-300 print:rounded-none print:h-[90vh]">
               <MapView
                 points={routePoints}
                 onMapClick={() => {}}
@@ -115,7 +115,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
           </div>
 
           {/* Client table */}
-          <div className="print:break-inside-avoid">
+          <div>
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 print:text-gray-500">
               Listado de clientes
             </h3>
