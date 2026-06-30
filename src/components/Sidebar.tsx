@@ -5,13 +5,14 @@ import { ClientForm } from './ClientForm';
 import { CatalogTab } from './CatalogTab';
 import { RouteTab } from './RouteTab';
 import { ViewerTab } from './ViewerTab';
-import { Plus, Users, MapPin, ChevronDown } from 'lucide-react';
+import { Plus, Users, MapPin, ChevronDown, Edit2, Trash2, Check, X, Printer } from 'lucide-react';
 
 interface SidebarProps {
   users: User[];
   selectedUserId: string;
   onSelectUser: (id: string) => void;
   onAddUser: (name: string, role: 'normal' | 'viewer') => void;
+  onEditUser: (id: string, name: string, role: 'normal' | 'viewer') => void;
   onDeleteUser: (id: string) => void;
   selectedViewerUserIds: string[];
   onToggleViewerUser: (id: string) => void;
@@ -34,16 +35,17 @@ interface SidebarProps {
   onToggleClientAssignment: (clientId: string) => void;
   onReorderRoute: (orderedClientIds: string[]) => void;
   onReorderViewer: (orderedAssignmentIds: string[]) => void;
+  onOpenPrint: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
-  users, selectedUserId, onSelectUser, onAddUser,
+  users, selectedUserId, onSelectUser, onAddUser, onEditUser, onDeleteUser,
   selectedViewerUserIds, onToggleViewerUser,
   selectedDay, onSelectDay, activeClients, activeEditingClient,
   isEditingNew, onStatusChange, onSaveClientForm, onCancelClientForm,
   sidebarTab, onSidebarTabChange, masterClients, assignments,
   onNewClient, onEditClient, onDeleteClient, onReorderClients,
-  onToggleClientAssignment, onReorderRoute, onReorderViewer
+  onToggleClientAssignment, onReorderRoute, onReorderViewer, onOpenPrint
 }) => {
   const activeUser = users.find(u => u.id === selectedUserId);
   const isViewer = activeUser?.role === 'viewer';
@@ -52,6 +54,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [collapsed, setCollapsed] = useState(false);
   const [userInput, setUserInput] = useState('');
   const [userRole, setUserRole] = useState<'normal' | 'viewer'>('normal');
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editRole, setEditRole] = useState<'normal' | 'viewer'>('normal');
 
   // Build assigned client IDs for the current user/day
   const assignedClientIds = useMemo(() => {
@@ -115,15 +120,47 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="px-3 py-4 text-center text-gray-500 text-xs">Sin usuarios</div>
             )}
             {users.map(user => (
-              <button key={user.id} onClick={() => { onSelectUser(user.id); setShowUserMenu(false); }}
-                className={`w-full px-3 py-2.5 text-left text-sm transition-colors flex items-center justify-between hover:bg-gray-700 ${
-                  selectedUserId === user.id ? 'bg-blue-600/20 text-blue-300' : 'text-gray-300'
-                }`}>
-                <span className="truncate">{user.name}</span>
-                <span className={`text-[10px] uppercase px-1.5 py-0.5 rounded font-bold ${
-                  user.role === 'viewer' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-500/20 text-blue-400'
-                }`}>{user.role === 'viewer' ? 'Fletero' : 'Vendedor'}</span>
-              </button>
+              editingUserId === user.id ? (
+                <div key={user.id} className="px-3 py-2 flex items-center gap-2 bg-gray-750">
+                  <input value={editName} onChange={(e) => setEditName(e.target.value)}
+                    className="flex-1 bg-gray-700 text-xs text-gray-200 rounded px-2 py-1.5 border border-gray-600 outline-none focus:border-blue-500" autoFocus
+                  />
+                  <select value={editRole} onChange={(e) => setEditRole(e.target.value as 'normal' | 'viewer')}
+                    className="bg-gray-700 text-xs text-gray-300 rounded px-2 py-1.5 border border-gray-600">
+                    <option value="normal">Vendedor</option>
+                    <option value="viewer">Fletero</option>
+                  </select>
+                  <button onClick={() => { onEditUser(user.id, editName, editRole); setEditingUserId(null); }}
+                    className="bg-green-700 hover:bg-green-600 text-white p-1 rounded transition-colors" title="Guardar">
+                    <Check size={12} />
+                  </button>
+                  <button onClick={() => setEditingUserId(null)}
+                    className="bg-gray-700 hover:bg-gray-600 text-gray-300 p-1 rounded transition-colors" title="Cancelar">
+                    <X size={12} />
+                  </button>
+                </div>
+              ) : (
+                <div key={user.id}
+                  className={`flex items-center gap-1 px-3 py-2 transition-colors hover:bg-gray-700 ${
+                    selectedUserId === user.id ? 'bg-blue-600/20' : ''
+                  }`}>
+                  <button onClick={() => { onSelectUser(user.id); setShowUserMenu(false); }}
+                    className="flex-1 text-left text-sm text-gray-300 min-w-0">
+                    <span className="truncate block">{user.name}</span>
+                  </button>
+                  <span className={`text-[10px] uppercase px-1.5 py-0.5 rounded font-bold shrink-0 ${
+                    user.role === 'viewer' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-500/20 text-blue-400'
+                  }`}>{user.role === 'viewer' ? 'Fletero' : 'Vendedor'}</span>
+                  <button onClick={() => { setEditingUserId(user.id); setEditName(user.name); setEditRole(user.role); }}
+                    className="p-1 rounded text-gray-500 hover:text-blue-300 hover:bg-gray-700 transition-all" title="Editar">
+                    <Edit2 size={11} />
+                  </button>
+                  <button onClick={() => { if (confirm('¿Eliminar este usuario?')) onDeleteUser(user.id); }}
+                    className="p-1 rounded text-gray-500 hover:text-red-400 hover:bg-gray-700 transition-all" title="Eliminar">
+                    <Trash2 size={11} />
+                  </button>
+                </div>
+              )
             ))}
             <div className="border-t border-gray-700 px-3 py-2 flex items-center gap-2">
               <select value={userRole} onChange={(e) => setUserRole(e.target.value as 'normal' | 'viewer')}
@@ -254,11 +291,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ? `${activeClients.length} cliente${activeClients.length !== 1 ? 's' : ''}`
                 : `${masterClients.length} en catálogo`}
             </span>
-            <button onClick={() => setCollapsed(true)}
-              className="text-gray-500 hover:text-gray-300 p-1 rounded transition-colors"
-              title="Contraer sidebar">
-              <ChevronDown size={16} className="rotate-90" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button onClick={onOpenPrint}
+                className="text-gray-500 hover:text-white p-1.5 rounded transition-colors"
+                title="Imprimir">
+                <Printer size={14} />
+              </button>
+              <button onClick={() => setCollapsed(true)}
+                className="text-gray-500 hover:text-gray-300 p-1.5 rounded transition-colors"
+                title="Contraer sidebar">
+                <ChevronDown size={16} className="rotate-90" />
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MasterClient } from '../types';
-import { Save, Trash2, X, MapPin, Clock, FileText } from 'lucide-react';
+import { Save, Trash2, X, MapPin, Clock, FileText, Phone } from 'lucide-react';
 
 interface PointFormProps {
   point: Partial<MasterClient>;
@@ -13,12 +13,14 @@ interface PointFormProps {
 export const PointForm: React.FC<PointFormProps> = ({ point, onSave, onCancel, onDelete, isNew }) => {
   const [name, setName] = useState(point.name || '');
   const [address, setAddress] = useState(point.address || '');
+  const [phone, setPhone] = useState(point.phone || '');
   const [time, setTime] = useState(point.time || '');
   const [notes, setNotes] = useState(point.notes || '');
 
   useEffect(() => {
     setName(point.name || '');
     setAddress(point.address || '');
+    setPhone(point.phone || '');
     setTime(point.time || '');
     setNotes(point.notes || '');
   }, [point]);
@@ -31,6 +33,7 @@ export const PointForm: React.FC<PointFormProps> = ({ point, onSave, onCancel, o
       id: point.id || `client-${Date.now()}`,
       name: name.trim(),
       address: address.trim() || undefined,
+      phone: phone.trim() || undefined,
       lat: point.lat || 0,
       lng: point.lng || 0,
       notes: notes.trim() || undefined,
@@ -63,6 +66,17 @@ export const PointForm: React.FC<PointFormProps> = ({ point, onSave, onCancel, o
           type="text" value={address} onChange={(e) => setAddress(e.target.value)}
           className="w-full text-xs px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           placeholder="Ej: Av. Mitre 450"
+        />
+      </div>
+
+      <div>
+        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+          <Phone size={10} className="inline mr-1" />Teléfono
+        </label>
+        <input
+          type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
+          className="w-full text-xs px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          placeholder="Ej: 381 555-0123"
         />
       </div>
 

@@ -17,7 +17,10 @@ CREATE TABLE IF NOT EXISTS viewer_route_orders (
 -- 3. Índices
 CREATE INDEX IF NOT EXISTS idx_vro_viewer_day ON viewer_route_orders(viewer_id, day);
 
--- 4. RLS para viewer_route_orders
+-- 5. Agregar teléfono a master_clients
+ALTER TABLE master_clients ADD COLUMN IF NOT EXISTS phone TEXT;
+
+-- 6. RLS para viewer_route_orders
 ALTER TABLE viewer_route_orders ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow all on viewer_route_orders" ON viewer_route_orders;
 CREATE POLICY "Allow all on viewer_route_orders" ON viewer_route_orders

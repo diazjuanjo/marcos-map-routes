@@ -204,13 +204,13 @@ export function applyViewerOrder(clients: AssignedClient[], viewerOrders: Viewer
 // =============================================================
 
 const SEED_CLIENTS: MasterClient[] = [
-  { id: 'client-1', name: 'Plaza Independencia (Gobierno)', address: '25 de Mayo 90', lat: -26.82414, lng: -65.2226, notes: 'Retirar firmas y orden de pago en administración.', time: '08:30', sort_order: 0 },
-  { id: 'client-2', name: 'Mercado del Norte', address: 'Maipú 200', lat: -26.8265, lng: -65.2230, notes: 'Entregar caja de repuestos y cobrar factura #3401.', time: '10:00', sort_order: 1 },
-  { id: 'client-3', name: 'Casa Histórica', address: 'Congreso 141', lat: -26.8306, lng: -65.2220, notes: 'Visita técnica para evaluar nueva instalación de filtros.', time: '11:45', sort_order: 2 },
-  { id: 'client-4', name: 'Terminal de Ómnibus', address: 'Av. Brígido Terán 250', lat: -26.8315, lng: -65.1945, notes: 'Despachar encomienda urgente para sucursal Concepción.', time: '13:00', sort_order: 3 },
-  { id: 'client-5', name: 'Parque Centenario 9 de Julio', address: 'Av. Soldati 400', lat: -26.8250, lng: -65.1980, notes: 'Mantenimiento preventivo en bombas de agua del lago.', time: '09:00', sort_order: 4 },
-  { id: 'client-6', name: 'Sanatorio 9 de Julio', address: '25 de Mayo 350', lat: -26.8220, lng: -65.2235, notes: 'Entrega de insumos descartables de alta prioridad.', time: '09:15', sort_order: 5 },
-  { id: 'client-7', name: 'Plaza Urquiza', address: 'Muñecas 800', lat: -26.8175, lng: -65.2095, notes: 'Reunión comercial en cafetería de la esquina con cliente mayorista.', time: '11:00', sort_order: 6 }
+  { id: 'client-1', name: 'Plaza Independencia (Gobierno)', address: '25 de Mayo 90', phone: '381 555-0101', lat: -26.82414, lng: -65.2226, notes: 'Retirar firmas y orden de pago en administración.', time: '08:30', sort_order: 0 },
+  { id: 'client-2', name: 'Mercado del Norte', address: 'Maipú 200', phone: '381 555-0102', lat: -26.8265, lng: -65.2230, notes: 'Entregar caja de repuestos y cobrar factura #3401.', time: '10:00', sort_order: 1 },
+  { id: 'client-3', name: 'Casa Histórica', address: 'Congreso 141', phone: '381 555-0103', lat: -26.8306, lng: -65.2220, notes: 'Visita técnica para evaluar nueva instalación de filtros.', time: '11:45', sort_order: 2 },
+  { id: 'client-4', name: 'Terminal de Ómnibus', address: 'Av. Brígido Terán 250', phone: '381 555-0104', lat: -26.8315, lng: -65.1945, notes: 'Despachar encomienda urgente para sucursal Concepción.', time: '13:00', sort_order: 3 },
+  { id: 'client-5', name: 'Parque Centenario 9 de Julio', address: 'Av. Soldati 400', phone: '381 555-0105', lat: -26.8250, lng: -65.1980, notes: 'Mantenimiento preventivo en bombas de agua del lago.', time: '09:00', sort_order: 4 },
+  { id: 'client-6', name: 'Sanatorio 9 de Julio', address: '25 de Mayo 350', phone: '381 555-0106', lat: -26.8220, lng: -65.2235, notes: 'Entrega de insumos descartables de alta prioridad.', time: '09:15', sort_order: 5 },
+  { id: 'client-7', name: 'Plaza Urquiza', address: 'Muñecas 800', phone: '381 555-0107', lat: -26.8175, lng: -65.2095, notes: 'Reunión comercial en cafetería de la esquina con cliente mayorista.', time: '11:00', sort_order: 6 }
 ];
 
 const SEED_USERS: User[] = [

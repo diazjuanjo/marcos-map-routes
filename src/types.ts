@@ -2,6 +2,7 @@ export interface RoutePoint {
   id: string;
   name: string;
   address?: string;
+  phone?: string;
   lat: number;
   lng: number;
   notes?: string;
@@ -21,6 +22,7 @@ export interface MasterClient {
   id: string;
   name: string;
   address?: string;
+  phone?: string;
   lat: number;
   lng: number;
   notes?: string;

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { User, DayOfWeek, MasterClient, RouteAssignment, AssignedClient, ViewerOrderEntry } from './types';
 import { Sidebar } from './components/Sidebar';
 import { MapView } from './components/MapView';
+import { PrintModal } from './components/PrintModal';
 import {
   loadUsers, saveUsers,
   loadMasterClients, saveMasterClients,
@@ -22,6 +23,7 @@ function toRoutePoints(clients: AssignedClient[]) {
     id: c.assignment_id,
     name: c.name,
     address: c.address,
+    phone: c.phone,
     lat: c.lat,
     lng: c.lng,
     notes: c.notes,
@@ -49,6 +51,7 @@ export const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [seeding, setSeeding] = useState(false);
+  const [showPrintModal, setShowPrintModal] = useState(false);
   const initialized = useRef(false);
 
   const currentUser = users.find(u => u.id === selectedUserId);
@@ -283,6 +286,10 @@ export const App: React.FC = () => {
     setActiveEditingClient(null);
   }, [users, selectedUserId]);
 
+  const handleEditUser = useCallback((userId: string, name: string, role: 'normal' | 'viewer') => {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, name, role } : u));
+  }, []);
+
   const handleDeleteUser = useCallback((userIdToDelete: string) => {
     const updatedUsers = users.filter(u => u.id !== userIdToDelete);
     setUsers(updatedUsers);
@@ -331,6 +338,10 @@ export const App: React.FC = () => {
     } finally { setSeeding(false); }
   }, []);
 
+  // ===== PRINT =====
+  const handleOpenPrint = useCallback(() => setShowPrintModal(true), []);
+  const handleClosePrint = useCallback(() => setShowPrintModal(false), []);
+
   // ===== RENDER =====
   if (loading) {
     return (
@@ -371,6 +382,7 @@ export const App: React.FC = () => {
           selectedUserId={selectedUserId}
           onSelectUser={handleUserSelect}
           onAddUser={handleAddUser}
+          onEditUser={handleEditUser}
           onDeleteUser={handleDeleteUser}
           selectedViewerUserIds={selectedViewerUserIds}
           onToggleViewerUser={(uid) => setSelectedViewerUserIds(prev =>
@@ -395,6 +407,7 @@ export const App: React.FC = () => {
           onToggleClientAssignment={handleToggleClientAssignment}
           onReorderRoute={handleReorderRoute}
           onReorderViewer={handleReorderViewer}
+          onOpenPrint={handleOpenPrint}
         />
       </div>
 
@@ -442,6 +455,15 @@ export const App: React.FC = () => {
           className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all ${mobileView === 'list' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-gray-200'}`}>
           <List size={14} /> Agenda</button>
       </div>
+
+      {showPrintModal && (
+        <PrintModal
+          users={users}
+          masterClients={masterClients}
+          assignments={assignments}
+          onClose={handleClosePrint}
+        />
+      )}
     </div>
   );
 };
