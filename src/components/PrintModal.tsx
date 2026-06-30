@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { User, MasterClient, RouteAssignment, DayOfWeek } from '../types';
 import { MapView } from './MapView';
 import { mergeAssignments } from '../utils/storage';
 import { Printer, X, MapPin } from 'lucide-react';
+import html2canvas from 'html2canvas';
 
 interface PrintModalProps {
   users: User[];
@@ -21,7 +22,8 @@ export const PrintModal: React.FC<PrintModalProps> = ({
     normalUsers.length > 0 ? normalUsers[0].id : ''
   );
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>('Lunes');
-  const printRef = useRef<HTMLDivElement>(null);
+  const [mapImage, setMapImage] = useState<string | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
 
   const selectedUser = users.find(u => u.id === selectedUserId);
 
@@ -44,13 +46,28 @@ export const PrintModal: React.FC<PrintModalProps> = ({
     }));
   }, [assignments, masterClients, selectedUserId, selectedDay]);
 
+  // Capture map as image whenever route points change
+  useEffect(() => {
+    setMapImage(null);
+    if (routePoints.length === 0 || !mapContainerRef.current) return;
+    const timer = setTimeout(() => {
+      if (!mapContainerRef.current) return;
+      html2canvas(mapContainerRef.current, { useCORS: true }).then(canvas => {
+        setMapImage(canvas.toDataURL('image/png'));
+      }).catch(() => {
+        // fallback: keep live map
+      });
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [routePoints]);
+
   const handlePrint = useCallback(() => {
     window.print();
   }, []);
 
   return (
     <div className="fixed inset-0 z-[5000] flex flex-col bg-gray-900/95 print:bg-white">
-      {/* Toolbar — hidden when printing */}
+      {/* Toolbar */}
       <div className="print-hidden flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-gray-900 shrink-0">
         <h2 className="text-white font-bold text-sm">Imprimir ruta</h2>
         <div className="flex items-center gap-3">
@@ -65,7 +82,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
         </div>
       </div>
 
-      {/* Controls — hidden when printing */}
+      {/* Controls */}
       <div className="print-hidden flex items-center gap-3 px-4 py-2 border-b border-gray-800 bg-gray-900/80 shrink-0">
         <div className="flex items-center gap-2">
           <label className="text-[11px] text-gray-500 font-bold uppercase tracking-wider">Vendedor</label>
@@ -88,7 +105,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
       </div>
 
       {/* Print content */}
-      <div ref={printRef} className="flex-1 overflow-y-auto print:overflow-visible">
+      <div className="flex-1 overflow-y-auto print:overflow-visible">
         <div className="max-w-4xl mx-auto p-4 md:p-6 print:p-0 print:max-w-none">
           {/* Title */}
           <div className="mb-4 print:mb-6">
@@ -98,12 +115,13 @@ export const PrintModal: React.FC<PrintModalProps> = ({
             </p>
           </div>
 
-          {/* Map */}
+          {/* Map — live on screen, image when printing */}
           <div className="mb-6 print:mb-0 print:break-after-page">
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 print:text-gray-500">
               <MapPin size={12} className="inline mr-1" />Mapa de ruta
             </h3>
-            <div className="h-[350px] md:h-[450px] rounded-xl overflow-hidden border border-gray-700 print:border-gray-300 print:rounded-none print:h-[90vh]">
+            {/* Live map (screen only) */}
+            <div ref={mapContainerRef} className="print:hidden h-[350px] md:h-[450px] rounded-xl overflow-hidden border border-gray-700">
               <MapView
                 points={routePoints}
                 onMapClick={() => {}}
@@ -112,6 +130,12 @@ export const PrintModal: React.FC<PrintModalProps> = ({
                 onStatusChange={() => {}}
               />
             </div>
+            {/* Captured image (print only) */}
+            {mapImage && (
+              <img src={mapImage} alt="Mapa de ruta"
+                className="hidden print:block w-full print:h-[90vh] object-contain"
+              />
+            )}
           </div>
 
           {/* Client table */}
