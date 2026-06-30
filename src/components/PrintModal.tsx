@@ -126,13 +126,12 @@ export const PrintModal: React.FC<PrintModalProps> = ({
                   <th className="text-left py-2 px-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider print:text-gray-600">Nombre</th>
                   <th className="text-left py-2 px-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider print:text-gray-600">Dirección</th>
                   <th className="text-left py-2 px-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider print:text-gray-600">Teléfono</th>
-                  <th className="text-left py-2 px-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider print:text-gray-600">Estado</th>
                 </tr>
               </thead>
               <tbody>
                 {routePoints.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="text-center py-8 text-gray-500 print:text-gray-400">
+                    <td colSpan={4} className="text-center py-8 text-gray-500 print:text-gray-400">
                       Sin clientes asignados
                     </td>
                   </tr>
@@ -143,17 +142,6 @@ export const PrintModal: React.FC<PrintModalProps> = ({
                       <td className="py-2.5 px-2 font-medium text-white print:text-gray-900">{p.name}</td>
                       <td className="py-2.5 px-2 text-gray-400 print:text-gray-600">{p.address || '—'}</td>
                       <td className="py-2.5 px-2 text-gray-400 print:text-gray-600">{p.phone || '—'}</td>
-                      <td className="py-2.5 px-2">
-                        <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${
-                          p.status === 'completed'
-                            ? 'text-emerald-400 print:text-emerald-700 bg-emerald-500/10 print:bg-emerald-50'
-                            : p.status === 'canceled'
-                            ? 'text-red-400 print:text-red-700 bg-red-500/10 print:bg-red-50'
-                            : 'text-amber-400 print:text-amber-700 bg-amber-500/10 print:bg-amber-50'
-                        }`}>
-                          {p.status === 'completed' ? 'Completado' : p.status === 'canceled' ? 'Cancelado' : 'Pendiente'}
-                        </span>
-                      </td>
                     </tr>
                   ))
                 )}
