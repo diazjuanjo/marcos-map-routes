@@ -369,100 +369,104 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="h-full w-full flex flex-col md:flex-row bg-gray-900 overflow-hidden font-sans">
-      <button onClick={handleResetApp} disabled={seeding}
-        className="absolute bottom-4 left-4 md:left-auto md:right-[200px] z-[2000] bg-gray-800/90 text-gray-400 hover:text-white hover:bg-gray-700 p-2.5 rounded-full shadow-lg border border-gray-700 transition-all flex items-center justify-center disabled:opacity-50"
-        title="Restaurar datos demo">
-        <RefreshCw size={15} className={seeding ? 'animate-spin' : ''} />
-      </button>
-
-      <div className={`print-hidden h-full ${mobileView === 'list' ? 'flex' : 'hidden md:flex'} w-full md:w-auto shrink-0`}>
-        <Sidebar
-          users={users}
-          selectedUserId={selectedUserId}
-          onSelectUser={handleUserSelect}
-          onAddUser={handleAddUser}
-          onEditUser={handleEditUser}
-          onDeleteUser={handleDeleteUser}
-          selectedViewerUserIds={selectedViewerUserIds}
-          onToggleViewerUser={(uid) => setSelectedViewerUserIds(prev =>
-            prev.includes(uid) ? prev.filter(id => id !== uid) : [...prev, uid]
-          )}
-          selectedDay={selectedDay}
-          onSelectDay={handleDaySelect}
-          activeClients={getActiveDayClients()}
-          activeEditingClient={activeEditingClient}
-          isEditingNew={isEditingNew}
-          onStatusChange={handleAssignmentStatusChange}
-          onSaveClientForm={handleSaveClientForm}
-          onCancelClientForm={() => setActiveEditingClient(null)}
-          sidebarTab={sidebarTab}
-          onSidebarTabChange={setSidebarTab}
-          masterClients={masterClients}
-          assignments={assignments}
-          onNewClient={handleNewClient}
-          onEditClient={handleEditClient}
-          onDeleteClient={handleDeleteClient}
-          onReorderClients={handleReorderClients}
-          onToggleClientAssignment={handleToggleClientAssignment}
-          onReorderRoute={handleReorderRoute}
-          onReorderViewer={handleReorderViewer}
-          onOpenPrint={handleOpenPrint}
-        />
-      </div>
-
-      <div className={`flex-1 h-full relative ${mobileView === 'map' ? 'block' : 'hidden md:block'}`}>
-        {splitView && splitUserIds.length >= 2 ? (
-          <div className="flex flex-col md:flex-row h-full w-full">
-            {splitUserIds.map((uid, idx) => {
-              const day = isViewer ? getSellerDay(selectedDay) : selectedDay;
-              const userPoints = toRoutePoints(getAssignedForUserDay(uid, day));
-              const user = users.find(u => u.id === uid);
-              return (
-                <div key={uid} className="flex-1 relative min-w-0 border-b md:border-b-0 md:border-r border-gray-700 last:border-0">
-                  <div className="absolute top-2 left-2 z-[1000] bg-gray-900/85 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-md border border-gray-700 shadow-lg flex items-center gap-1.5">
-                    <span className={`w-2 h-2 rounded-full ${idx === 0 ? 'bg-blue-500' : idx === 1 ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                    {user?.name || 'Sin nombre'}
-                  </div>
-                  <MapView points={userPoints} onMapClick={(lat, lng) => { setSelectedUserId(uid); handleMapClick(lat, lng); }}
-                    onMarkerClick={(p) => handleMarkerClick(p.id)} tempNewPoint={null}
-                    onStatusChange={(pid, s) => handleAssignmentStatusChange(pid, s)} />
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <MapView points={toRoutePoints(getActiveDayClients())} onMapClick={handleMapClick}
-            onMarkerClick={(p) => handleMarkerClick(p.id)} tempNewPoint={null}
-            onStatusChange={handleAssignmentStatusChange} />
-        )}
-
-        {isViewer && selectedViewerUserIds.length >= 2 && (
-          <button onClick={() => setSplitView(v => !v)}
-            className="absolute top-4 right-4 md:right-16 z-[1000] bg-white hover:bg-gray-100 text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg shadow-md border border-gray-200 transition-all flex items-center gap-1.5 text-xs font-bold"
-            title={splitView ? 'Vista combinada' : 'Vista dividida'}>
-            {splitView ? <Layers size={14} /> : <Columns size={14} />}
-            <span className="hidden sm:inline">{splitView ? 'Combinar' : 'Dividir'}</span>
+    <div className="h-full w-full bg-gray-900 font-sans">
+      {showPrintModal ? (
+        <div className="h-full w-full overflow-y-auto">
+          <PrintModal
+            users={users}
+            masterClients={masterClients}
+            assignments={assignments}
+            onClose={handleClosePrint}
+          />
+        </div>
+      ) : (
+        <div className="h-full w-full flex flex-col md:flex-row overflow-hidden">
+          <button onClick={handleResetApp} disabled={seeding}
+            className="absolute bottom-4 left-4 md:left-auto md:right-[200px] z-[2000] bg-gray-800/90 text-gray-400 hover:text-white hover:bg-gray-700 p-2.5 rounded-full shadow-lg border border-gray-700 transition-all flex items-center justify-center disabled:opacity-50"
+            title="Restaurar datos demo">
+            <RefreshCw size={15} className={seeding ? 'animate-spin' : ''} />
           </button>
-        )}
-      </div>
 
-      <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-[3000] flex bg-gray-900/95 backdrop-blur border border-gray-800 p-1 rounded-full shadow-2xl">
-        <button onClick={() => setMobileView('map')}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all ${mobileView === 'map' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-gray-200'}`}>
-          <Map size={14} /> Ver Mapa</button>
-        <button onClick={() => setMobileView('list')}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all ${mobileView === 'list' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-gray-200'}`}>
-          <List size={14} /> Agenda</button>
-      </div>
+          <div className={`print-hidden h-full ${mobileView === 'list' ? 'flex' : 'hidden md:flex'} w-full md:w-auto shrink-0`}>
+            <Sidebar
+              users={users}
+              selectedUserId={selectedUserId}
+              onSelectUser={handleUserSelect}
+              onAddUser={handleAddUser}
+              onEditUser={handleEditUser}
+              onDeleteUser={handleDeleteUser}
+              selectedViewerUserIds={selectedViewerUserIds}
+              onToggleViewerUser={(uid) => setSelectedViewerUserIds(prev =>
+                prev.includes(uid) ? prev.filter(id => id !== uid) : [...prev, uid]
+              )}
+              selectedDay={selectedDay}
+              onSelectDay={handleDaySelect}
+              activeClients={getActiveDayClients()}
+              activeEditingClient={activeEditingClient}
+              isEditingNew={isEditingNew}
+              onStatusChange={handleAssignmentStatusChange}
+              onSaveClientForm={handleSaveClientForm}
+              onCancelClientForm={() => setActiveEditingClient(null)}
+              sidebarTab={sidebarTab}
+              onSidebarTabChange={setSidebarTab}
+              masterClients={masterClients}
+              assignments={assignments}
+              onNewClient={handleNewClient}
+              onEditClient={handleEditClient}
+              onDeleteClient={handleDeleteClient}
+              onReorderClients={handleReorderClients}
+              onToggleClientAssignment={handleToggleClientAssignment}
+              onReorderRoute={handleReorderRoute}
+              onReorderViewer={handleReorderViewer}
+              onOpenPrint={handleOpenPrint}
+            />
+          </div>
 
-      {showPrintModal && (
-        <PrintModal
-          users={users}
-          masterClients={masterClients}
-          assignments={assignments}
-          onClose={handleClosePrint}
-        />
+          <div className={`flex-1 h-full relative ${mobileView === 'map' ? 'block' : 'hidden md:block'}`}>
+            {splitView && splitUserIds.length >= 2 ? (
+              <div className="flex flex-col md:flex-row h-full w-full">
+                {splitUserIds.map((uid, idx) => {
+                  const day = isViewer ? getSellerDay(selectedDay) : selectedDay;
+                  const userPoints = toRoutePoints(getAssignedForUserDay(uid, day));
+                  const user = users.find(u => u.id === uid);
+                  return (
+                    <div key={uid} className="flex-1 relative min-w-0 border-b md:border-b-0 md:border-r border-gray-700 last:border-0">
+                      <div className="absolute top-2 left-2 z-[1000] bg-gray-900/85 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-md border border-gray-700 shadow-lg flex items-center gap-1.5">
+                        <span className={`w-2 h-2 rounded-full ${idx === 0 ? 'bg-blue-500' : idx === 1 ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                        {user?.name || 'Sin nombre'}
+                      </div>
+                      <MapView points={userPoints} onMapClick={(lat, lng) => { setSelectedUserId(uid); handleMapClick(lat, lng); }}
+                        onMarkerClick={(p) => handleMarkerClick(p.id)} tempNewPoint={null}
+                        onStatusChange={(pid, s) => handleAssignmentStatusChange(pid, s)} />
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <MapView points={toRoutePoints(getActiveDayClients())} onMapClick={handleMapClick}
+                onMarkerClick={(p) => handleMarkerClick(p.id)} tempNewPoint={null}
+                onStatusChange={handleAssignmentStatusChange} />
+            )}
+
+            {isViewer && selectedViewerUserIds.length >= 2 && (
+              <button onClick={() => setSplitView(v => !v)}
+                className="absolute top-4 right-4 md:right-16 z-[1000] bg-white hover:bg-gray-100 text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg shadow-md border border-gray-200 transition-all flex items-center gap-1.5 text-xs font-bold"
+                title={splitView ? 'Vista combinada' : 'Vista dividida'}>
+                {splitView ? <Layers size={14} /> : <Columns size={14} />}
+                <span className="hidden sm:inline">{splitView ? 'Combinar' : 'Dividir'}</span>
+              </button>
+            )}
+          </div>
+
+          <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-[3000] flex bg-gray-900/95 backdrop-blur border border-gray-800 p-1 rounded-full shadow-2xl">
+            <button onClick={() => setMobileView('map')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all ${mobileView === 'map' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-gray-200'}`}>
+              <Map size={14} /> Ver Mapa</button>
+            <button onClick={() => setMobileView('list')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all ${mobileView === 'list' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-gray-200'}`}>
+              <List size={14} /> Agenda</button>
+          </div>
+        </div>
       )}
     </div>
   );
