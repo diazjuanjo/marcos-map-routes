@@ -375,6 +375,8 @@ export const App: React.FC = () => {
           users={users}
           masterClients={masterClients}
           assignments={assignments}
+          viewerOrders={viewerOrders}
+          selectedViewerUserIds={selectedViewerUserIds}
           onClose={handleClosePrint}
         />
       ) : (
