@@ -371,14 +371,12 @@ export const App: React.FC = () => {
   return (
     <div className="h-full w-full bg-gray-900 font-sans">
       {showPrintModal ? (
-        <div className="h-full w-full overflow-y-auto">
-          <PrintModal
-            users={users}
-            masterClients={masterClients}
-            assignments={assignments}
-            onClose={handleClosePrint}
-          />
-        </div>
+        <PrintModal
+          users={users}
+          masterClients={masterClients}
+          assignments={assignments}
+          onClose={handleClosePrint}
+        />
       ) : (
         <div className="h-full w-full flex flex-col md:flex-row overflow-hidden">
           <button onClick={handleResetApp} disabled={seeding}
