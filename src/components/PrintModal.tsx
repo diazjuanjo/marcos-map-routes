@@ -123,14 +123,14 @@ export const PrintModal: React.FC<PrintModalProps> = ({
       </div>
 
       {/* Content */}
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-6 max-w-4xl mx-auto print:p-0 print:max-w-none">
         <div className="mb-6 print:hidden">
           <h1 className="text-2xl font-bold text-gray-900">RutaApp</h1>
           <p className="text-gray-600 mt-1">{selectedUser?.name} — {selectedDay}</p>
         </div>
 
         {/* Leaflet map — screen and print */}
-        <div className="mb-6">
+        <div className="mb-6 print:mb-0 print-map-page">
           <h3 className="text-xs font-bold text-gray-500 uppercase mb-2 print-hidden">Mapa de ruta</h3>
           <div className="relative h-[250px] print:h-screen border border-gray-300 print:border-0 overflow-hidden">
             {routePoints.length > 0 ? (
@@ -154,7 +154,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
         </div>
 
         {/* Client table */}
-        <div className="print:pt-8">
+        <div className="print:pt-8 print-list-page">
           <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">Listado de clientes</h3>
           <table className="w-full border-collapse">
             <thead>

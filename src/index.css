@@ -89,7 +89,18 @@ html, body, #root {
 }
 
 /* Estilos de impresión */
+@page map-page {
+  size: landscape;
+  margin: 0mm;
+}
+@page list-page {
+  size: portrait;
+  margin: 15mm;
+}
+
 @media print {
+  .print-map-page { page: map-page; }
+  .print-list-page { page: list-page; }
   html, body, #root {
     overflow: visible !important;
     height: auto !important;
