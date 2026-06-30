@@ -124,16 +124,17 @@ export const PrintModal: React.FC<PrintModalProps> = ({
 
       {/* Content */}
       <div className="p-6 max-w-4xl mx-auto">
-        <div className="mb-6">
+        <div className="mb-6 print:hidden">
           <h1 className="text-2xl font-bold text-gray-900">RutaApp</h1>
           <p className="text-gray-600 mt-1">{selectedUser?.name} — {selectedDay}</p>
         </div>
 
         {/* Leaflet map — screen and print */}
-        <div className="mb-6 print:break-after-page">
-          <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">Mapa de ruta</h3>
-          <div className="h-[250px] print:min-h-[90vh] border border-gray-300 overflow-hidden">
+        <div className="mb-6">
+          <h3 className="text-xs font-bold text-gray-500 uppercase mb-2 print-hidden">Mapa de ruta</h3>
+          <div className="relative h-[250px] print:h-screen border border-gray-300 print:border-0 overflow-hidden">
             {routePoints.length > 0 ? (
+              <>
               <MapView
                 points={routePoints}
                 onMapClick={() => {}}
@@ -142,6 +143,10 @@ export const PrintModal: React.FC<PrintModalProps> = ({
                 onStatusChange={() => {}}
                 hideOverlays
               />
+              <div className="hidden print:block print:absolute print:top-2 print:left-2 print:z-[10000] print:bg-white/80 print:px-2 print:py-1 print:rounded print:text-[10px] print:font-bold print:text-gray-700 print:shadow-sm">
+                {selectedUser?.name} — {selectedDay}
+              </div>
+              </>
             ) : (
               <p className="text-gray-500 text-sm italic p-4">Sin puntos en la ruta</p>
             )}
@@ -149,7 +154,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
         </div>
 
         {/* Client table */}
-        <div>
+        <div className="print:pt-8">
           <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">Listado de clientes</h3>
           <table className="w-full border-collapse">
             <thead>
