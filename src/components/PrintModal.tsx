@@ -3,7 +3,6 @@ import { User, MasterClient, RouteAssignment, DayOfWeek } from '../types';
 import { MapView } from './MapView';
 import { mergeAssignments } from '../utils/storage';
 import { Printer, X, MapPin } from 'lucide-react';
-import html2canvas from 'html2canvas';
 
 interface PrintModalProps {
   users: User[];
@@ -22,9 +21,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
     normalUsers.length > 0 ? normalUsers[0].id : ''
   );
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>('Lunes');
-  const mapRef = useRef<HTMLDivElement>(null);
-  const mapImageRef = useRef<string | null>(null);
-  const [, forceRender] = useState(0);
+  const routeCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const selectedUser = users.find(u => u.id === selectedUserId);
 
@@ -47,24 +44,105 @@ export const PrintModal: React.FC<PrintModalProps> = ({
     }));
   }, [assignments, masterClients, selectedUserId, selectedDay]);
 
-  // Pre-capture map when route points change
+  // Draw route on canvas for print output
   useEffect(() => {
-    mapImageRef.current = null;
-    forceRender(n => n + 1);
-    if (routePoints.length === 0) return;
-    const timer = setTimeout(() => {
-      if (!mapRef.current) return;
-      html2canvas(mapRef.current, { useCORS: true }).then(canvas => {
-        mapImageRef.current = canvas.toDataURL('image/png');
-        forceRender(n => n + 1);
-      }).catch(() => {});
-    }, 1000);
-    return () => clearTimeout(timer);
+    const canvas = routeCanvasRef.current;
+    if (!canvas || routePoints.length === 0) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.scale(dpr, dpr);
+
+    // Background
+    ctx.fillStyle = '#f0f0f0';
+    ctx.fillRect(0, 0, w, h);
+
+    // Compute bounds and scale
+    const lats = routePoints.map(p => p.lat);
+    const lngs = routePoints.map(p => p.lng);
+    const minLat = Math.min(...lats);
+    const maxLat = Math.max(...lats);
+    const minLng = Math.min(...lngs);
+    const maxLng = Math.max(...lngs);
+
+    const padding = 60;
+    const mapW = w - padding * 2;
+    const mapH = h - padding * 2;
+    const latRange = maxLat - minLat || 0.01;
+    const lngRange = maxLng - minLng || 0.01;
+    const scale = Math.min(mapW / lngRange, mapH / latRange) * 0.85;
+
+    const toX = (lng: number) => padding + (lng - minLng) * scale + (mapW - lngRange * scale) / 2;
+    const toY = (lat: number) => padding + (maxLat - lat) * scale + (mapH - latRange * scale) / 2;
+
+    // Draw dotted route line
+    const coords = routePoints.map(p => ({ x: toX(p.lng), y: toY(p.lat) }));
+    ctx.beginPath();
+    ctx.setLineDash([8, 6]);
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 3;
+    ctx.lineJoin = 'round';
+    ctx.moveTo(coords[0].x, coords[0].y);
+    for (let i = 1; i < coords.length; i++) {
+      ctx.lineTo(coords[i].x, coords[i].y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Draw markers
+    for (let i = 0; i < routePoints.length; i++) {
+      const { x, y } = coords[i];
+
+      // Pill background
+      const text = `${i + 1}. ${routePoints[i].name}`;
+      ctx.font = 'bold 11px system-ui, sans-serif';
+      const textW = ctx.measureText(text).width;
+      const pillW = textW + 16;
+      const pillH = 26;
+
+      const statusColors: Record<string, string> = {
+        completed: '#22c55e',
+        pending: '#3b82f6',
+        canceled: '#ef4444'
+      };
+      const fill = statusColors[routePoints[i].status] || '#3b82f6';
+
+      ctx.fillStyle = fill;
+      ctx.beginPath();
+      ctx.roundRect(x - pillW / 2, y - pillH / 2, pillW, pillH, 13);
+      ctx.fill();
+
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(x - pillW / 2, y - pillH / 2, pillW, pillH, 13);
+      ctx.stroke();
+
+      // Number circle
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.beginPath();
+      ctx.arc(x - pillW / 2 + 14, y, 9, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 10px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${i + 1}`, x - pillW / 2 + 14, y);
+
+      // Name text
+      ctx.textAlign = 'left';
+      ctx.fillText(text, x - pillW / 2 + 24, y);
+    }
   }, [routePoints]);
 
-  const handlePrint = useCallback(() => {
-    window.print();
-  }, []);
+  const handlePrint = useCallback(() => window.print(), []);
 
   return (
     <>
@@ -72,11 +150,6 @@ export const PrintModal: React.FC<PrintModalProps> = ({
       <div className="print-hidden sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
         <h2 className="text-gray-900 font-bold text-sm">Imprimir ruta</h2>
         <div className="flex items-center gap-3">
-          {!mapImageRef.current && routePoints.length > 0 && (
-            <span className="text-xs text-amber-600 flex items-center gap-1">
-              Capturando mapa...
-            </span>
-          )}
           <button onClick={handlePrint}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5">
             <Printer size={14} /> Imprimir
@@ -111,32 +184,34 @@ export const PrintModal: React.FC<PrintModalProps> = ({
           <p className="text-gray-600 mt-1">{selectedUser?.name} — {selectedDay}</p>
         </div>
 
-        {/* Map */}
-        <div className="mb-8 print:break-after-page">
+        {/* Live map (screen only) */}
+        <div className="mb-4 print:hidden">
           <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">
-            <MapPin size={12} className="inline mr-1" />Mapa de ruta
+            <MapPin size={12} className="inline mr-1" />Mapa interactivo
           </h3>
-          {/* Live map (screen only) */}
-          <div ref={mapRef} className="print:hidden h-[350px] md:h-[450px] border border-gray-300 overflow-hidden">
+          <div className="h-[350px] md:h-[450px] border border-gray-300 overflow-hidden">
             <MapView
               points={routePoints}
               onMapClick={() => {}}
               onMarkerClick={() => {}}
               tempNewPoint={null}
               onStatusChange={() => {}}
-              preferCanvas={true}
             />
           </div>
-          {/* Captured image (print only) */}
-          {mapImageRef.current && (
-            <img src={mapImageRef.current} alt="Mapa de ruta"
-              className="hidden print:block w-full"
+        </div>
+
+        {/* Canvas route map (print only) */}
+        <div className="hidden print:block print:break-after-page">
+          <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">
+            <MapPin size={12} className="inline mr-1" />Mapa de ruta
+          </h3>
+          {routePoints.length > 0 ? (
+            <canvas ref={routeCanvasRef}
+              className="w-full print:h-[90vh] border border-gray-300"
+              style={{ maxWidth: '100%' }}
             />
-          )}
-          {!mapImageRef.current && routePoints.length > 0 && (
-            <p className="hidden print:block text-gray-500 text-sm italic">
-              Capturando mapa para impresión...
-            </p>
+          ) : (
+            <p className="text-gray-500 text-sm italic">Sin puntos en la ruta</p>
           )}
         </div>
 
