@@ -101,10 +101,6 @@ html, body, #root {
   .leaflet-container {
     height: 100vh !important;
     width: 100vw !important;
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    z-index: 9999 !important;
   }
   .leaflet-popup {
     display: none !important;
