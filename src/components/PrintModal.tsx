@@ -227,32 +227,29 @@ export const PrintModal: React.FC<PrintModalProps> = ({
           <p className="text-gray-600 mt-1">{selectedUser?.name} — {selectedDay}</p>
         </div>
 
-        {/* Canvas route map — visible on screen AND print */}
-        <div className="mb-8 print:break-after-page">
+        {/* Canvas route map — hidden on screen, full page in print */}
+        <canvas ref={canvasRef}
+          className="hidden print:block print:w-full print:break-after-page"
+          width={800} height={600}
+        />
+
+        {/* Leaflet map — screen only */}
+        <div className="mb-4 print:hidden">
           <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">
             <MapPin size={12} className="inline mr-1" />Mapa de ruta
           </h3>
-          {routePoints.length > 0 ? (
-            <canvas ref={canvasRef}
-              className="w-full border border-gray-300 print:border-0"
-              style={{ maxWidth: '100%', height: 'auto', aspectRatio: '800 / 600' }}
-            />
-          ) : (
-            <p className="text-gray-500 text-sm italic">Sin puntos en la ruta</p>
-          )}
-        </div>
-
-        {/* Interactive Leaflet map — screen only preview */}
-        <div className="mb-4 print:hidden">
-          <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">Vista previa interactiva</h3>
-          <div className="h-[300px] border border-gray-300 overflow-hidden">
-            <MapView
-              points={routePoints}
-              onMapClick={() => {}}
-              onMarkerClick={() => {}}
-              tempNewPoint={null}
-              onStatusChange={() => {}}
-            />
+          <div className="h-[250px] border border-gray-300 overflow-hidden">
+            {routePoints.length > 0 ? (
+              <MapView
+                points={routePoints}
+                onMapClick={() => {}}
+                onMarkerClick={() => {}}
+                tempNewPoint={null}
+                onStatusChange={() => {}}
+              />
+            ) : (
+              <p className="text-gray-500 text-sm italic p-4">Sin puntos en la ruta</p>
+            )}
           </div>
         </div>
 
