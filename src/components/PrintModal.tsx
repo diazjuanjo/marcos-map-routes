@@ -3,6 +3,7 @@ import { User, MasterClient, RouteAssignment, ViewerOrderEntry, DayOfWeek, Assig
 import { MapView } from './MapView';
 import { mergeAssignments, applyViewerOrder, viewerDayToSellerDay } from '../utils/storage';
 import { Printer, X } from 'lucide-react';
+import L from 'leaflet';
 
 interface PrintModalProps {
   users: User[];
@@ -82,14 +83,19 @@ export const PrintModal: React.FC<PrintModalProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = useCallback(() => {
-    if (containerRef.current && mapRef.current) {
+    if (containerRef.current && mapRef.current && routePoints.length > 0) {
       containerRef.current.style.height = '210mm';
       mapRef.current.invalidateSize();
-      setTimeout(() => window.print(), 100);
+      const bounds = routePoints.reduce(
+        (b: any, p: any) => b.extend([p.lat, p.lng]),
+        L.latLngBounds([routePoints[0].lat, routePoints[0].lng], [routePoints[0].lat, routePoints[0].lng])
+      );
+      mapRef.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 17 });
+      setTimeout(() => window.print(), 200);
     } else {
       window.print();
     }
-  }, []);
+  }, [routePoints]);
 
   return (
     <>
