@@ -89,29 +89,29 @@ html, body, #root {
 }
 
 /* Estilos de impresión */
-@page map-page {
-  size: A4 landscape;
-  margin: 0;
-}
-@page list-page {
-  size: A4 portrait;
-  margin: 15mm;
-}
-.print-map-page { page: map-page; }
-.print-list-page { page: list-page; }
+@page :first { size: A4 landscape; margin: 0; }
+@page { size: A4 portrait; margin: 15mm; }
 
 @media print {
-  .print-map-page {
-    display: flex;
-    align-items: stretch;
-    height: 100vh;
-    width: 100vw;
-  }
-  .print-map-page .full-print-map {
-    flex: 1;
+  .print-map-fill {
+    display: block;
     height: 100vh;
     width: 100vw;
     overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+  .print-map-fill .map-print-container {
+    height: 100% !important;
+    width: 100% !important;
+    border: none !important;
+  }
+  .print-map-fill .leaflet-container {
+    height: 100% !important;
+    width: 100% !important;
+  }
+  .print-table-page {
+    page-break-before: always;
   }
   html, body, #root {
     overflow: visible !important;
