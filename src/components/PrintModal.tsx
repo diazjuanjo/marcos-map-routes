@@ -124,6 +124,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
               onMarkerClick={() => {}}
               tempNewPoint={null}
               onStatusChange={() => {}}
+              preferCanvas={true}
             />
           </div>
           {/* Captured image (print only) */}

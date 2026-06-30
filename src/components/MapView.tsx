@@ -12,6 +12,7 @@ interface MapViewProps {
   onMarkerClick: (point: RoutePoint) => void;
   tempNewPoint: Partial<RoutePoint> | null;
   onStatusChange: (pointId: string, status: RoutePoint['status']) => void;
+  preferCanvas?: boolean;
 }
 
 const createNumberedIcon = (index: number, name: string, status: RoutePoint['status']) => {
@@ -80,7 +81,8 @@ export const MapView: React.FC<MapViewProps> = ({
   onMapClick,
   onMarkerClick,
   tempNewPoint,
-  onStatusChange
+  onStatusChange,
+  preferCanvas
 }) => {
   const defaultCenter: [number, number] = [-26.82414, -65.2226];
   const defaultZoom = 13;
@@ -94,6 +96,7 @@ export const MapView: React.FC<MapViewProps> = ({
         zoom={defaultZoom}
         className="h-full w-full"
         zoomControl={false}
+        preferCanvas={preferCanvas}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
