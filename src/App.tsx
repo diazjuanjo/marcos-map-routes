@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { User, DayOfWeek, MasterClient, RouteAssignment, AssignedClient, ViewerOrderEntry } from './types';
 import { Sidebar } from './components/Sidebar';
 import { MapView } from './components/MapView';
+import { LoginGate, checkAuth } from './components/LoginGate';
 import { PrintModal } from './components/PrintModal';
 import {
   loadUsers, saveUsers,
@@ -53,6 +54,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [seeding, setSeeding] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
+  const [authenticated, setAuthenticated] = useState(checkAuth());
   const initialized = useRef(false);
 
   const currentUser = users.find(u => u.id === selectedUserId);
@@ -371,6 +373,10 @@ export const App: React.FC = () => {
         </div>
       </div>
     );
+  }
+
+  if (!authenticated) {
+    return <LoginGate onSuccess={() => setAuthenticated(true)} />;
   }
 
   return (
