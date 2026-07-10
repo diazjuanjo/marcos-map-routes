@@ -15,19 +15,18 @@ interface MapViewProps {
   preferCanvas?: boolean;
   hideOverlays?: boolean;
   onMapReady?: (map: any) => void;
+  onMarkerDragEnd?: (clientId: string, lat: number, lng: number) => void;
 }
 
-const createNumberedIcon = (index: number, name: string, status: RoutePoint['status']) => {
-  const truncated = name.length > 12 ? name.substring(0, 12) + '...' : name;
+const createNumberedIcon = (index: number, status: RoutePoint['status']) => {
   return L.divIcon({
     html: `<div class="custom-marker-pill marker-${status}">
       <span class="marker-number">${index}</span>
-      <span class="marker-name">${truncated}</span>
     </div>`,
     className: 'custom-div-icon',
-    iconSize: [120, 30],
-    iconAnchor: [60, 15],
-    popupAnchor: [0, -15]
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    popupAnchor: [0, -14]
   });
 };
 
@@ -35,12 +34,11 @@ const createTempIcon = () => {
   return L.divIcon({
     html: `<div class="custom-marker-pill bg-orange-500 animate-pulse">
       <span class="marker-number">+</span>
-      <span class="marker-name">Nuevo</span>
     </div>`,
     className: 'custom-div-icon',
-    iconSize: [90, 30],
-    iconAnchor: [45, 15],
-    popupAnchor: [0, -15]
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    popupAnchor: [0, -14]
   });
 };
 
@@ -92,7 +90,8 @@ export const MapView: React.FC<MapViewProps> = ({
   onStatusChange,
   preferCanvas,
   hideOverlays,
-  onMapReady
+  onMapReady,
+  onMarkerDragEnd
 }) => {
   const defaultCenter: [number, number] = [-26.82414, -65.2226];
   const defaultZoom = 13;
@@ -136,9 +135,14 @@ export const MapView: React.FC<MapViewProps> = ({
           <Marker
             key={point.id}
             position={[point.lat, point.lng]}
-            icon={createNumberedIcon(index + 1, point.name, point.status)}
+            icon={createNumberedIcon(index + 1, point.status)}
+            draggable={!!onMarkerDragEnd}
             eventHandlers={{
-              click: () => onMarkerClick(point)
+              click: () => onMarkerClick(point),
+              dragend: onMarkerDragEnd ? (e: any) => {
+                const { lat, lng } = e.target.getLatLng();
+                onMarkerDragEnd(point.clientId, lat, lng);
+              } : undefined
             }}
           >
             <Popup>

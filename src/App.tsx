@@ -21,6 +21,7 @@ function getSellerDay(viewerDay: DayOfWeek): DayOfWeek {
 function toRoutePoints(clients: AssignedClient[]) {
   return clients.map(c => ({
     id: c.assignment_id,
+    clientId: c.id,
     name: c.name,
     address: c.address,
     phone: c.phone,
@@ -268,6 +269,10 @@ export const App: React.FC = () => {
     setMobileView('list');
   }, [isViewer, assignments, masterClients]);
 
+  const handleMarkerDragEnd = useCallback((clientId: string, lat: number, lng: number) => {
+    setMasterClients(prev => prev.map(c => c.id === clientId ? { ...c, lat, lng } : c));
+  }, []);
+
   const handleSaveClientForm = useCallback((client: MasterClient) => {
     if (isEditingNew) handleAddClient(client);
     else handleUpdateClient(client);
@@ -437,7 +442,8 @@ export const App: React.FC = () => {
                       </div>
                       <MapView points={userPoints} onMapClick={(lat, lng) => { setSelectedUserId(uid); handleMapClick(lat, lng); }}
                         onMarkerClick={(p) => handleMarkerClick(p.id)} tempNewPoint={null}
-                        onStatusChange={(pid, s) => handleAssignmentStatusChange(pid, s)} />
+                        onStatusChange={(pid, s) => handleAssignmentStatusChange(pid, s)}
+                        onMarkerDragEnd={handleMarkerDragEnd} />
                     </div>
                   );
                 })}
@@ -445,7 +451,8 @@ export const App: React.FC = () => {
             ) : (
               <MapView points={toRoutePoints(getActiveDayClients())} onMapClick={handleMapClick}
                 onMarkerClick={(p) => handleMarkerClick(p.id)} tempNewPoint={null}
-                onStatusChange={handleAssignmentStatusChange} />
+                onStatusChange={handleAssignmentStatusChange}
+                onMarkerDragEnd={handleMarkerDragEnd} />
             )}
 
             {isViewer && selectedViewerUserIds.length >= 2 && (

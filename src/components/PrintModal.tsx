@@ -52,6 +52,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
       const ordered = applyViewerOrder(all, viewerOrders);
       return ordered.map(c => ({
         id: c.assignment_id,
+        clientId: c.id,
         name: c.name,
         address: c.address,
         phone: c.phone,
@@ -68,6 +69,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
     );
     return mergeAssignments(userAssignments, masterClients).map(c => ({
       id: c.assignment_id,
+      clientId: c.id,
       name: c.name,
       address: c.address,
       phone: c.phone,

@@ -1,5 +1,6 @@
 export interface RoutePoint {
   id: string;
+  clientId: string;
   name: string;
   address?: string;
   phone?: string;
